@@ -1,0 +1,24 @@
+/// # The dpia Plugin {#dpia}
+///
+/// @see thorin::dpia
+///
+/// [TOC]
+///
+/// A minimal dpia plugin
+///
+/// ## Operations
+///
+/// ### %dpia.const
+///
+/// The 42 constant, evaluated using a normalizer
+
+.ax %dpia.Comm: *;
+.ax %dpia.seq:  Π[n: .Nat][«n; %dpia.Comm»] -> %dpia.Comm;
+.let %dpia.skip = %dpia.seq 0 ();
+
+.ax %dpia.Acc: * -> *;
+
+/// Stack/Scoped alloc
+.ax %dpia.salloc:  Π [T: *][[%dpia.Acc T, T] -> %dpia.Comm] -> %dpia.Comm;
+.ax %dpia.assign:  Π.[T: *][%dpia.Acc T, T] -> %dpia.Comm;
+.ax %dpia.for_seq: Π[n: .Nat][.Idx n -> %dpia.Comm] -> %dpia.Comm;

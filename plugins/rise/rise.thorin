@@ -1,0 +1,92 @@
+/// # The rise Plugin {#rise}
+
+.plugin core;
+
+/// @see thorin::rise
+///
+/// [TOC]
+///
+/// A minimal rise plugin
+///
+/// ## Operations
+///
+/// ### %rise.const
+///
+
+
+//.ax generate: {n: nat} -> {t: data} -> (idx[n] -> t) -> n.t;
+//.ax idx: {n: nat} -> {t: data} -> idx[n] -> n.t -> t;
+
+//.ax take:   (n: nat) -> {m: nat} -> {t: data} -> (n+m).t -> n.t;
+//.ax drop:   (n: nat) -> {m: nat} -> {t: data} -> (n+m).t -> m.t;
+//.ax concat: {n: nat} -> {m: nat} -> {t: data} -> n.t -> m.t -> (n+m).t;
+
+//.ax split: (n: nat) -> {m: nat} -> {t: data} -> (m*n).t -> m.n.t;
+//.ax  join: {n: nat} -> {m: nat} -> {t: data} -> n.m.t -> (n*m).t;
+
+//.ax slide: {n: nat} -> (sz: nat) -> (sp: nat) -> {t: data} -> (sp*n+sz).t -> (1+n).sz.t;
+//.ax circularBuffer: {n: nat} -> (alloc: nat) -> (sz: nat) -> {s: data} -> {t: data} ->
+    //(s -> t) -> (n-1+sz).s -> n.sz.t;
+//.ax   rotateValues: {n: nat} -> (sz: nat) -> {t: data} ->
+    //(t -> t) -> (n-1+sz).t -> n.sz.t;
+//
+//.ax transpose: {n: nat} -> {m: nat} -> {t: data} -> n.m.t -> m.n.t;
+//
+//.ax gather : {n: nat} -> {m: nat} -> {t: data} -> m.idx[n] -> n.t -> m.t;
+//.ax scatter: {n: nat} -> {m: nat} -> {t: data} -> n.idx[m] -> n.t -> m.t;
+//.ax reorder: {t: data} -> (n: nat) -> (idxF: nat2nat) -> (idxFinv: nat2nat) -> n.t -> n.t;
+//
+//.ax padCst:   {n: nat} -> (l: nat) -> (r: nat) -> {t: data} -> t -> n.t -> (l+n+r).t;
+//.ax padClamp: {n: nat} -> (l: nat) -> (r: nat) -> {t: data} ->      n.t -> (l+n+r).t;
+//.ax padEmpty: {n: nat} ->             (r: nat) -> {t: data} ->      n.t ->   (n+r).t;
+//
+.ax %rise.zip: Π.[n: .Nat].[S: *].[T: *][«n; S»][«n; T»] -> «n; [S, T]»;
+//.ax unzip: {n: nat} -> {s: data} -> {t: data} -> n.(s, t) -> (n.s, n.t);
+//
+//// pair ops
+//.ax makePair: {s: data} -> {t: data} -> s -> t -> (s, t);
+//.ax fst:      {s: data} -> {t: data} -> (s, t) -> s;
+//.ax snd:      {s: data} -> {t: data} -> (s, t) -> t;
+//
+//// vector ops
+//.ax vectorFromScalar: {n: nat} -> {t: data} -> t -> vec[t, n];
+//.ax asVector:         (n: nat) -> {m: nat} -> {t: data} -> (m*n).t -> m.vec[t, n];
+//.ax asVectorAligned:  (n: nat) -> {m: nat} -> {t: data} -> (m*n).t -> m.vec[t, n];
+//.ax asScalar:         {n: nat} -> {m: nat} -> {t: data} -> m.vec[t, n] -> (m*n).t;
+//
+//// map
+.ax %rise.map: Π.[n: .Nat].[S: *].[T: *][S -> T][«n; S»] -> «n; T»;
+//.ax mapSeq:        {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
+//.ax mapSeqUnroll:  {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
+//
+//.ax mapStream:     {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
+//.ax iterateStream: {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
+//
+//.ax mapFst: {s1: data} -> {t: data} -> {s2: data} -> (s1 -> s2) -> (s1, t) -> (s2, t)
+//.ax mapSnd: {s: data} -> {t1: data} -> {t2: data} -> (t1 -> t2) -> (s, t1) -> (s, t2)
+//
+//// reduce
+.ax %rise.reduce:    Π.[n: .Nat]       .[T: *][T -> T -> T][T][«n; T»] -> T;
+.ax %rise.reduceSeq: Π.[n: .Nat].[S: *].[T: *][T -> S -> T][T][«n; S»] -> T;
+//.ax reduceSeqUnroll: {n: nat} -> {s: data} -> {t: data} -> (t -> s -> t) -> t -> n.s -> t
+//
+//// scan
+//.ax scanSeq: {n: nat} -> {s: data} -> {t: data} -> (s -> t -> t) -> t -> n.s -> n.t
+//
+//// iterate
+//.ax iterate: {n: nat} -> {m: nat} -> (k: nat) -> {t: data} ->
+//    ((l: nat) -> (l*n).t -> l.t) -> (m*(n^k)).t -> m.t
+//
+//// dependent pair ops
+//.ax makeDepPair: {fdt: nat2data} -> (n: nat) -> fdt(n) -> (m: nat ** fdt(m))
+//.ax dmatch:      {fdt: nat2data} -> {t: data} -> (n: nat ** fdt(n)) -> ((m: nat) -> fdt(m) -> t) -> t
+//
+//// dependent array ops
+//.ax depMapSeq: {n: nat} -> {ft1: nat2data} -> {ft2: nat2data} ->
+//    ((k: nat) -> ft1(k) -> ft2(k)) -> n..ft1 -> n..ft2
+//.ax depZip: {n: nat} -> {ft1: nat2data} -> {ft2: nat2data} ->
+//    n..ft1 -> n..ft2 -> n..(i: nat |-> (ft1(i), ft2(i)) )
+//.ax depJoin: {n: nat} -> {lenF: nat2nat} -> {t: data} ->
+//    n..(i: nat |-> lenF(i).t) -> (sum_(i=0)^(n-1) lenF(i)).t
+//.ax partition: {n: nat} -> {t: data} -> (m: nat) -> (lenF: nat2nat) -> n.t -> m..(i: nat |-> lenF(i).t)
+//.ax %rise.const_idx: Π n: .Nat -> .Idx n, normalize_const;

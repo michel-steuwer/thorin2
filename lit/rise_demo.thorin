@@ -1,0 +1,15 @@
+// RUN: %thorin %s -o -
+.plugin rise;
+.plugin dpia;
+
+.lam .extern f(n: .Nat, x: «n; %core.I32», y: «n; %core.I32»): %core.I32 =
+    .let zipped = %rise.zip x y;
+    .let res = %rise.reduceSeq (.lm (acc: %core.I32)(x y: %core.I32): %core.I32 = %core.wrap.add 0 (acc, %core.wrap.mul 0 (x, y))) 0:%core.I32 zipped;
+    .let _ = %dpia.salloc %core.I32 .lm (acc_a: %dpia.Acc %core.I32, acc_e: %core.I32): %dpia.Comm =
+        %dpia.seq 2 (
+            %dpia.assign (acc_a, 0:%core.I32),
+            %dpia.for_seq n .lm (i: .Idx n): %dpia.Comm = %dpia.assign (acc_a, %core.wrap.add 0 (acc_e, %core.wrap.mul 0 (x#i, y#i)))
+        );
+    res;
+
+.let x = %dpia.salloc %core.I32 .lm (a: %dpia.Acc %core.I32, e: %core.I32): %dpia.Comm = %dpia.assign (a, 0:%core.I32);
