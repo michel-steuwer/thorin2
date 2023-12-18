@@ -13,80 +13,157 @@
 /// ### %rise.const
 ///
 
+/// # Core rise
 
-//.ax generate: {n: nat} -> {t: data} -> (idx[n] -> t) -> n.t;
-//.ax idx: {n: nat} -> {t: data} -> idx[n] -> n.t -> t;
+.ax %rise.toMem: Π.[T: *] -> T -> T;
 
-//.ax take:   (n: nat) -> {m: nat} -> {t: data} -> (n+m).t -> n.t;
-//.ax drop:   (n: nat) -> {m: nat} -> {t: data} -> (n+m).t -> m.t;
-//.ax concat: {n: nat} -> {m: nat} -> {t: data} -> n.t -> m.t -> (n+m).t;
+.ax %rise.generate: Π.[n: .Nat].[T: *] -> (.Idx n -> T) -> «n; T»;
+.ax %rise.idx: Π.[n: .Nat].[T: *] -> .Idx n -> «n; T» -> T;
 
-//.ax split: (n: nat) -> {m: nat} -> {t: data} -> (m*n).t -> m.n.t;
-//.ax  join: {n: nat} -> {m: nat} -> {t: data} -> n.m.t -> (n*m).t;
+.ax %rise.take  : Π [n: .Nat].[m: .Nat].[T: *] -> «%core.nat.add(n, m); T» -> «n; T»;
+.ax %rise.drop  : Π [n: .Nat].[m: .Nat].[T: *] -> «%core.nat.add(n, m); T» -> «m; T»;
+.ax %rise.concat: Π.[n: .Nat].[m: .Nat].[T: *] -> «n; T» -> «m; T» -> «%core.nat.add(n, m); T»;
 
-//.ax slide: {n: nat} -> (sz: nat) -> (sp: nat) -> {t: data} -> (sp*n+sz).t -> (1+n).sz.t;
-//.ax circularBuffer: {n: nat} -> (alloc: nat) -> (sz: nat) -> {s: data} -> {t: data} ->
-    //(s -> t) -> (n-1+sz).s -> n.sz.t;
-//.ax   rotateValues: {n: nat} -> (sz: nat) -> {t: data} ->
-    //(t -> t) -> (n-1+sz).t -> n.sz.t;
-//
-//.ax transpose: {n: nat} -> {m: nat} -> {t: data} -> n.m.t -> m.n.t;
-//
-//.ax gather : {n: nat} -> {m: nat} -> {t: data} -> m.idx[n] -> n.t -> m.t;
-//.ax scatter: {n: nat} -> {m: nat} -> {t: data} -> n.idx[m] -> n.t -> m.t;
-//.ax reorder: {t: data} -> (n: nat) -> (idxF: nat2nat) -> (idxFinv: nat2nat) -> n.t -> n.t;
-//
-//.ax padCst:   {n: nat} -> (l: nat) -> (r: nat) -> {t: data} -> t -> n.t -> (l+n+r).t;
-//.ax padClamp: {n: nat} -> (l: nat) -> (r: nat) -> {t: data} ->      n.t -> (l+n+r).t;
-//.ax padEmpty: {n: nat} ->             (r: nat) -> {t: data} ->      n.t ->   (n+r).t;
-//
-.ax %rise.zip: Π.[n: .Nat].[S: *].[T: *][«n; S»][«n; T»] -> «n; [S, T]»;
-//.ax unzip: {n: nat} -> {s: data} -> {t: data} -> n.(s, t) -> (n.s, n.t);
-//
-//// pair ops
-//.ax makePair: {s: data} -> {t: data} -> s -> t -> (s, t);
-//.ax fst:      {s: data} -> {t: data} -> (s, t) -> s;
-//.ax snd:      {s: data} -> {t: data} -> (s, t) -> t;
-//
-//// vector ops
-//.ax vectorFromScalar: {n: nat} -> {t: data} -> t -> vec[t, n];
-//.ax asVector:         (n: nat) -> {m: nat} -> {t: data} -> (m*n).t -> m.vec[t, n];
-//.ax asVectorAligned:  (n: nat) -> {m: nat} -> {t: data} -> (m*n).t -> m.vec[t, n];
-//.ax asScalar:         {n: nat} -> {m: nat} -> {t: data} -> m.vec[t, n] -> (m*n).t;
-//
-//// map
-.ax %rise.map: Π.[n: .Nat].[S: *].[T: *][S -> T][«n; S»] -> «n; T»;
-//.ax mapSeq:        {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
-//.ax mapSeqUnroll:  {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
-//
-//.ax mapStream:     {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
-//.ax iterateStream: {n: nat} -> {s: data} -> {t: data} -> (s -> t) -> n.s -> n.t
-//
-//.ax mapFst: {s1: data} -> {t: data} -> {s2: data} -> (s1 -> s2) -> (s1, t) -> (s2, t)
-//.ax mapSnd: {s: data} -> {t1: data} -> {t2: data} -> (t1 -> t2) -> (s, t1) -> (s, t2)
-//
-//// reduce
-.ax %rise.reduce:    Π.[n: .Nat]       .[T: *][T -> T -> T][T][«n; T»] -> T;
-.ax %rise.reduceSeq: Π.[n: .Nat].[S: *].[T: *][T -> S -> T][T][«n; S»] -> T;
-//.ax reduceSeqUnroll: {n: nat} -> {s: data} -> {t: data} -> (t -> s -> t) -> t -> n.s -> t
-//
-//// scan
-//.ax scanSeq: {n: nat} -> {s: data} -> {t: data} -> (s -> t -> t) -> t -> n.s -> n.t
-//
-//// iterate
-//.ax iterate: {n: nat} -> {m: nat} -> (k: nat) -> {t: data} ->
-//    ((l: nat) -> (l*n).t -> l.t) -> (m*(n^k)).t -> m.t
-//
-//// dependent pair ops
-//.ax makeDepPair: {fdt: nat2data} -> (n: nat) -> fdt(n) -> (m: nat ** fdt(m))
-//.ax dmatch:      {fdt: nat2data} -> {t: data} -> (n: nat ** fdt(n)) -> ((m: nat) -> fdt(m) -> t) -> t
-//
-//// dependent array ops
-//.ax depMapSeq: {n: nat} -> {ft1: nat2data} -> {ft2: nat2data} ->
-//    ((k: nat) -> ft1(k) -> ft2(k)) -> n..ft1 -> n..ft2
-//.ax depZip: {n: nat} -> {ft1: nat2data} -> {ft2: nat2data} ->
-//    n..ft1 -> n..ft2 -> n..(i: nat |-> (ft1(i), ft2(i)) )
-//.ax depJoin: {n: nat} -> {lenF: nat2nat} -> {t: data} ->
-//    n..(i: nat |-> lenF(i).t) -> (sum_(i=0)^(n-1) lenF(i)).t
-//.ax partition: {n: nat} -> {t: data} -> (m: nat) -> (lenF: nat2nat) -> n.t -> m..(i: nat |-> lenF(i).t)
-//.ax %rise.const_idx: Π n: .Nat -> .Idx n, normalize_const;
+.ax %rise.split: Π [n: .Nat].[m: .Nat].[T: *] -> «%core.nat.mul(m, n); T» -> «m; «n; T»»;
+.ax %rise.join : Π.[n: .Nat].[m: .Nat].[T: *] -> «m; «n; T»» -> «%core.nat.mul (m, n); T»;
+
+.ax %rise.slide: Π.[n: .Nat][sz: .Nat][sp: .Nat].[T: *] ->
+                   «%core.nat.mul(sp, %core.nat.add(n, sz)); T» -> «%core.nat.add(1, n); «sz; T»»;
+.ax %rise.circularBuffer: Π [alloc: .Nat][sz: .Nat].[n: .Nat].[S: *].[T: *] ->
+                            (S -> T) -> «%core.nat.add(n, sz); S» -> «%core.nat.add(n, 1); «sz; T»»;
+.ax %rise.rotateValues: Π [sz: .Nat].[n: .Nat].[T: *] ->
+                          (T -> T) -> «%core.nat.add(n, sz); T» -> «%core.nat.add(n, 1); «sz; T»»;
+
+.ax %rise.transpose: Π.[n: .Nat].[m: .Nat].[T: *] -> «n; «m; T»» -> «m; «n; T»»;
+
+.ax %rise.gather : Π.[n: .Nat].[m: .Nat].[T: *] -> «m; .Idx n» -> «n; T» -> «m; T»;
+.ax %rise.scatter: Π.[n: .Nat].[m: .Nat].[T: *] -> «n; .Idx m» -> «n; T» -> «m; T»;
+.ax %rise.reorder: Π [n: .Nat].[T: *] -> (.Nat -> .Nat) -> (.Nat -> .Nat) -> «n; T» -> «n; T»;
+
+.ax %rise.padCst  : Π [l: .Nat][r: .Nat].[n: .Nat].[T: *] -> T -> «n; T» -> «%core.nat.add(l,%core.nat.add(n, r)); T»;
+.ax %rise.padClamp: Π [l: .Nat][r: .Nat].[n: .Nat].[T: *] -> «n; T» -> «%core.nat.add(l,%core.nat.add(n, r)); T»;
+.ax %rise.padEmpty: Π [p: .Nat].[n: .Nat].[T: *] -> «n; T» -> «%core.nat.add(n, p); T»;
+
+.ax %rise.zip  : Π.[n: .Nat].[S: *].[T: *] -> «n; S» -> «n; T» -> «n; [S, T]»;
+.ax %rise.unzip: Π.[n: .Nat].[S: *].[T: *] -> «n; [S, T]» -> [«n; S», «n; T»];
+
+.ax %rise.Vec: [.Nat, *] -> *;
+.ax %rise.vectorFromScalar: Π.[n: .Nat].[T: *] -> T -> %rise.Vec(n, T);
+.ax %rise.asVector        : Π [n: .Nat].[m: .Nat].[T: *] -> «%core.nat.mul(m,n); T» -> «m; %rise.Vec(n, T)»;
+.ax %rise.asVectorAligned : Π [n: .Nat].[m: .Nat].[T: *] -> «%core.nat.mul(m,n); T» -> «m; %rise.Vec(n, T)»;
+.ax %rise.asScalar        : Π [n: .Nat].[m: .Nat].[T: *] -> «m; %rise.Vec(n, T)» -> «%core.nat.mul(m,n); T»;
+
+.ax %rise.map      : Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.mapSeq   : Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.mapStream: Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+
+.ax %rise.iterateStream: Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+
+.ax %rise.mapFst: Π.[S1: *].[S2: *].[T: *] -> (S1 -> S2) -> [S1, T] -> [S2, T];
+.ax %rise.mapSnd: Π.[S1: *].[S2: *].[T: *] -> (S1 -> S2) -> [T, S1] -> [T, S2];
+
+.ax %rise.reduce:    Π.[n: .Nat]       .[T: *] -> (T -> T -> T) -> T -> «n; T» -> T;
+.ax %rise.reduceSeq: Π.[n: .Nat].[S: *].[T: *] -> (T -> S -> T) -> T -> «n; S» -> T;
+
+.ax %rise.scanSeq: Π.[n: .Nat].[S: *].[T: *] -> (T -> S -> T) -> T -> «n; S» -> «n; T»;
+
+// not in core:
+.ax %rise.nat(pow): «2; .Nat» -> .Nat;
+
+.ax %rise.iterate: Π.[n: .Nat].[m: .Nat][k: .Nat].[T: *] ->
+                     (Π [l: .Nat] -> «%core.nat.mul(l, n); T» -> «l; T») ->
+                     «%core.nat.mul(m, %rise.nat.pow(n, k)); T» -> «m; T»;
+
+.ax %rise.makeDepPair: Π.[fdt: .Nat -> *][n: .Nat] -> (fdt n) -> [m: .Nat, fdt m];
+.ax %rise.dmatch: Π.[fdt: .Nat -> *].[T: *] -> [n: .Nat, fdt n] -> (Π [m: .Nat] -> (fdt m) -> T) -> T;
+
+.ax %rise.DepArray: [n: .Nat, .Idx n -> *] -> *;
+
+.ax %rise.depMapSeq: Π.[n: .Nat].[ft1: .Idx n -> *].[ft2: .Idx n -> *] ->
+                       (Π [k: .Idx n] -> (ft1 k) -> (ft2 k)) ->
+                       %rise.DepArray(n, ft1) -> %rise.DepArray(n, ft2);
+
+.ax %rise.depZip: Π.[n: .Nat].[ft1: .Idx n -> *].[ft2: .Idx n -> *] ->
+                        %rise.DepArray(n, ft1) ->
+                        %rise.DepArray(n, ft2) ->
+                        %rise.DepArray(n, .lm (i: .Idx n): * = [ft1 i, ft2 i]);
+
+.lam %rise.sum(n: .Nat, f: .Idx n -> .Nat): .Nat =
+    // generate 0 ... n-1
+    .let numbers: «n; .Idx n» = %rise.generate (.lm (i: .Idx n): .Idx n = i);
+    // apply f to all of them and then sum them up
+    %rise.reduce (.lm a = .lm b = %core.nat.add(a, b)) 0 (%rise.map f numbers);
+
+.ax %rise.depJoin: Π.[n: .Nat].[lenF: .Idx n -> .Nat].[T: *] ->
+                        %rise.DepArray(n, .lm (i: .Idx n): * = «lenF i; T») ->
+                        «%rise.sum(n, lenF); T»;
+
+.ax %rise.partition: Π [m: .Nat][lenF: .Idx m -> .Nat].[n: .Nat].[T: *] ->
+                        «n; T» ->
+                        %rise.DepArray(m, .lm (i: .Idx m): * = «lenF i; T»);
+
+/// # OpenMP Rise
+.ax %rise.ompMapPar : Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.ompReducePar: Π.[n: .Nat].[T: *] -> (T -> T -> T) -> T -> «n; T» -> T;
+
+/// # OpenCL Rise
+.ax %rise.oclAddress: *;
+.ax %rise.oclGlobal:  %rise.oclAddress;
+.ax %rise.oclLocal:   %rise.oclAddress;
+.ax %rise.oclPrivate: %rise.oclAddress;
+
+.ax %rise.oclToMem: Π.[T: *][%rise.oclAddress] -> T -> T;
+.ax %rise.oclReduceSeq: Π [%rise.oclAddress].[n: .Nat].[S: *].[T: *] -> (T -> S -> T) -> T -> «n; S» -> T;
+
+.ax %rise.oclIterate: Π [%rise.oclAddress].[n: .Nat].[m: .Nat][k: .Nat].[T: *] ->
+                        (Π [l: .Nat] -> «%core.nat.mul(l, n); T» -> «l; T») ->
+                        «%core.nat.mul(m, %rise.nat.pow(n, k)); T» -> «m; T»;
+
+.ax %rise.olcCircularBuffer: Π [%rise.oclAddress][alloc: .Nat][sz: .Nat].[n: .Nat].[S: *].[T: *] ->
+                            (S -> T) -> «%core.nat.add(n, sz); S» -> «%core.nat.add(n, 1); «sz; T»»;
+.ax %rise.olcRotateValues: Π [%rise.oclAddress][sz: .Nat].[n: .Nat].[T: *] ->
+                          (T -> T) -> «%core.nat.add(n, sz); T» -> «%core.nat.add(n, 1); «sz; T»»;
+
+.ax %rise.oclMapGlobal(x,y,z):    Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.oclMapLocal(x,y,z):     Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.oclMapWorkGroup(x,y,z): Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+
+.ax %rise.oclRunPrimitive: Π [ls1: .Nat, ls2: .Nat, ls3: .Nat][gs1: .Nat, gs2: .Nat, gs3: .Nat].[T: *] -> T -> T;
+
+/// # Cuda Rise
+.ax %rise.cuMapBlock(x,y,z):    Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.cuMapGlobal(x,y,z):   Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.cuMapThread(x,y,z):   Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.cuMapWarp(x,y,z):     Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+.ax %rise.cuMapLane(x,y,z):     Π.[n: .Nat].[S: *].[T: *] -> (S -> T) -> «n; S» -> «n; T»;
+
+.ax %rise.cuFragmentType: *;
+.ax %rise.cuFragment_ACC: %rise.cuFragmentType;
+.ax %rise.cuFragment_A: %rise.cuFragmentType;
+.ax %rise.cuFragment_B: %rise.cuFragmentType;
+
+.ax %rise.cuMatrixLayout: *;
+.ax %rise.cuMatrixLayout_ROW_MAJOR: %rise.cuMatrixLayout;
+
+.ax %rise.cuFragment: Π [n: .Nat, m: .Nat, k: .Nat, T: *, f: %rise.cuFragmentType, l: %rise.cuMatrixLayout] -> *;
+
+.ax %rise.asFragment: Π.[n: .Nat].[m: .Nat].[k: .Nat].[T: *].[f: %rise.cuFragmentType].[l: %rise.cuMatrixLayout] ->
+                        «n; «m; T»» -> %rise.cuFragment(n, m, k, T, f, l);
+
+.ax %rise.asMatrix: Π.[n: .Nat].[m: .Nat].[k: .Nat].[T: *] ->
+                        %rise.cuFragment(n, m, k, T, %rise.cuFragment_ACC, %rise.cuMatrixLayout_ROW_MAJOR);
+
+.ax %rise.generateFragment: Π.[n: .Nat].[m: .Nat].[k: .Nat].[T: *].[f: %rise.cuFragmentType] ->
+                                T -> %rise.cuFragment(n, m, k, T, f, %rise.cuMatrixLayout_ROW_MAJOR);
+
+.ax %rise.tensorMMA: Π.[la: %rise.cuMatrixLayout].[lb: %rise.cuMatrixLayout]
+                      .[m: .Nat].[n: .Nat].[k: .Nat].[S: *].[T: *] ->
+                        %rise.cuFragment(m, k, n, S, %rise.cuFragment_A, la) ->
+                        %rise.cuFragment(k, n, m, S, %rise.cuFragment_B, lb) ->
+                        %rise.cuFragment(m, n, k, T, %rise.cuFragment_ACC, %rise.cuMatrixLayout_ROW_MAJOR) ->
+                        %rise.cuFragment(m, n, k, T, %rise.cuFragment_ACC, %rise.cuMatrixLayout_ROW_MAJOR);
+
+.ax %rise.mapFragment: Π.[m: .Nat].[n: .Nat].[k: .Nat].[T: *].[f: %rise.cuFragmentType].[l: %rise.cuMatrixLayout] ->
+                        (T -> T) -> %rise.cuFragment(n, m, k, T, f, l) -> %rise.cuFragment(n, m, k, T, f, l);
+
+.ax %rise.globalToShared: Π.[T: *] -> T -> T;
